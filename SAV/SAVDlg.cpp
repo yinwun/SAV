@@ -6,6 +6,7 @@
 #include "SAV.h"
 #include "SAVDlg.h"
 #include "afxdialogex.h"
+#include "SASO.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -69,6 +70,7 @@ BEGIN_MESSAGE_MAP(CSAVDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TABMain, &CSAVDlg::OnTcnSelchangeTabmain)
+	ON_BN_CLICKED(IDC_btnSingleLogin, &CSAVDlg::OnBnClickedbtnsinglelogin)
 END_MESSAGE_MAP()
 
 
@@ -200,4 +202,60 @@ void CSAVDlg::OnTcnSelchangeTabmain(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 
 	*pResult = 0;
+}
+
+
+void CSAVDlg::OnBnClickedbtnsinglelogin()
+{
+	// TODO: Add your control notification handler code here
+
+	
+	HOSTENT *lpHostEnt;
+	struct in_addr inAddr;
+	LPSTR lpaddr;
+	char ip[30];
+	char serverName[30];
+	memset(ip, 0, sizeof(ip));
+
+	strncpy_s(ip, "116.10.184.141", strlen("116.10.184.141"));
+	strncpy_s(serverName, "石器电信1", strlen("石器电信1"));
+
+	/*lpHostEnt = gethostbyname(ip);
+	if (!lpHostEnt)return;
+	lpaddr = lpHostEnt->h_addr_list[0];
+	memmove(&inAddr, lpaddr, 4);
+	sprintf_s(ip, "%d.%d.%d.%d", inAddr.S_un.S_addr & 0xff, (inAddr.S_un.S_addr >> 8) & 0xff, (inAddr.S_un.S_addr >> 16) & 0xff, (inAddr.S_un.S_addr >> 24) & 0xff);*/
+	strcpy_s(g_serverinfo.ip, ip);
+	g_serverinfo.port = 9065;
+
+	char *serverKey = (char*)malloc(150 * sizeof(char));
+
+	strcpy_s(user.charname, "yinwun15");
+	strcpy_s(user.password, "dI34286834Y");
+	strcpy_s(user.safecode, "123");
+	strcpy_s(user.scriptName, "");
+	SOCKET socket;
+	BOOL isConnect = ConnectServer(socket, g_serverinfo.ip, g_serverinfo.port, &*serverKey);
+
+	
+	//连接服务端
+	if (!isConnect) {
+
+		MessageBox("A");
+		
+
+	}
+	else
+
+	{
+
+		//生成runningKey
+		CString strtmp(serverKey);
+		//AfxMessageBox(strtmp);
+		CString str = strtmp.Right(strtmp.GetLength() - 1);
+		SASO *so = new SASO(str);
+		char *SOKey = so->RunningKey();
+		MessageBox(SOKey);
+	}
+	
 }

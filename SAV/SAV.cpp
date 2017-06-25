@@ -51,6 +51,11 @@ BOOL CSAVApp::InitInstance()
 
 	CWinApp::InitInstance();
 
+	if (!AfxSocketInit())
+	{
+		AfxMessageBox("Windows Ì×½Ó×Ö³õÊ¼»¯Ê§°Ü¡£");
+		return FALSE;
+	}
 
 	AfxEnableControlContainer();
 

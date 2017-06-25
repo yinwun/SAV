@@ -6,6 +6,7 @@
 #include "afxcmn.h"
 #include "DialogAccount.h"
 #include "DialogCharInfo.h"
+#include "Common.h"
 
 // CSAVDlg ¶Ô»°¿ò
 class CSAVDlg : public CDialogEx
@@ -39,4 +40,9 @@ public:
 	CDialogCharInfo m_para_charInfo;
 	CListCtrl m_listAct;
 	afx_msg void OnTcnSelchangeTabmain(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedbtnsinglelogin();
+
+	
+	SERVERINFO g_serverinfo;
+	USERINFO user;						
 };
