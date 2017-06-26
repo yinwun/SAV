@@ -6,11 +6,13 @@
 #include "SAV.h"
 #include "SAVDlg.h"
 #include "afxdialogex.h"
+#include "SASO.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+CDialogAccount cdlgact;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -20,9 +22,7 @@ public:
 	CAboutDlg();
 
 // 对话框数据
-#ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
-#endif
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
@@ -32,7 +32,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
+CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
 {
 }
 
@@ -50,8 +50,7 @@ END_MESSAGE_MAP()
 
 
 CSAVDlg::CSAVDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_SAV_DIALOG, pParent)
-	, m_para_account(0)
+	: CDialogEx(CSAVDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -60,15 +59,13 @@ void CSAVDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TABMain, m_tabMain);
-
-
 }
 
 BEGIN_MESSAGE_MAP(CSAVDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_NOTIFY(TCN_SELCHANGE, IDC_TABMain, &CSAVDlg::OnTcnSelchangeTabmain)
+	ON_BN_CLICKED(IDC_btnSingleLogin, &CSAVDlg::OnBnClickedbtnsinglelogin)
 END_MESSAGE_MAP()
 
 
@@ -103,11 +100,12 @@ BOOL CSAVDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	// TODO:  在此添加额外的初始化代码
 
+	
 	m_tabMain.InsertItem(0, _T("账号管理"));
 	m_tabMain.InsertItem(1, _T("人宠资料"));
-
+	
 	m_para_account.Create(IDD_DlgAccount, GetDlgItem(IDC_TABMain));
 	m_para_charInfo.Create(IDD_DlgCharInfo, GetDlgItem(IDC_TABMain));
 
@@ -126,7 +124,6 @@ BOOL CSAVDlg::OnInitDialog()
 	m_para_account.ShowWindow(true);
 	m_para_charInfo.ShowWindow(false);
 
-	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -180,8 +177,6 @@ HCURSOR CSAVDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CSAVDlg::OnTcnSelchangeTabmain(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
@@ -200,4 +195,81 @@ void CSAVDlg::OnTcnSelchangeTabmain(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 
 	*pResult = 0;
+}
+
+void CSAVDlg::OnSinglelogin()
+{
+	UpdateData(TRUE);
+
+}
+
+void CSAVDlg::OnBnClickedbtnsinglelogin()
+{
+	// TODO: Add your control notification handler code here
+
+	UpdateData(TRUE);
+
+	
+
+	cdlgact.GetAccountList();
+
+	//获取服务器地址
+	vector<CString> vecLine = GetLineInConfigurationINI();
+	if (vecLine.empty())
+	{
+		MessageBox(L"没服务器地址！", L"提示信息", MB_OK | MB_ICONINFORMATION);
+		return;
+	}
+	
+
+	
+	/*
+	HOSTENT *lpHostEnt;
+	struct in_addr inAddr;
+	LPSTR lpaddr;
+	char ip[30];
+	char serverName[30];
+	memset(ip, 0, sizeof(ip));
+
+	strncpy_s(ip, "116.10.184.141", strlen("116.10.184.141"));
+	strncpy_s(serverName, "石器电信1", strlen("石器电信1"));
+
+	lpHostEnt = gethostbyname(ip);
+	if (!lpHostEnt)return;
+	lpaddr = lpHostEnt->h_addr_list[0];
+	memmove(&inAddr, lpaddr, 4);
+	sprintf_s(ip, "%d.%d.%d.%d", inAddr.S_un.S_addr & 0xff, (inAddr.S_un.S_addr >> 8) & 0xff, (inAddr.S_un.S_addr >> 16) & 0xff, (inAddr.S_un.S_addr >> 24) & 0xff);
+	strcpy_s(g_serverinfo.ip, ip);
+	g_serverinfo.port = 9065;
+
+	char *serverKey = (char*)malloc(150 * sizeof(char));
+
+	strcpy_s(user.charname, "yinwun15");
+	strcpy_s(user.password, "dI34286834Y");
+	strcpy_s(user.safecode, "123");
+	strcpy_s(user.scriptName, "");
+	SOCKET socket;
+	BOOL isConnect = false;
+	//ConnectServer(socket, g_serverinfo.ip, g_serverinfo.port, &*serverKey);
+
+
+	//连接服务端
+	if (!isConnect) {
+
+		MessageBox(L"A");
+
+
+	}
+	else
+
+	{
+
+		//生成runningKey
+		CString strtmp(serverKey);
+		//AfxMessageBox(strtmp);
+		CString str = strtmp.Right(strtmp.GetLength() - 1);
+		SASO *so = new SASO(str);
+		char *SOKey = so->RunningKey();
+	}
+	*/
 }

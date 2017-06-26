@@ -16,8 +16,8 @@ public:
 	enum { IDD = IDD_DlgAccount };
 #endif
 
-	CListCtrl m_listAct;
 	
+private:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -25,4 +25,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
+	CListCtrl m_listAct;
+	void GetAccountList();
+	void BindInfoList();
 };
