@@ -1,5 +1,6 @@
 #pragma once
-
+#include "Common.h"
+#include "SALib.h"
 
 // CDialogAccount dialog
 
@@ -26,6 +27,12 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	CListCtrl m_listAct;
-	void GetAccountList();
 	void BindInfoList();
+	afx_msg void OnBnClickedbtnactlogin();
+	void OnSinglelogin();
+	void CallbackMsg(NOTIFYPARA *pNotifyPara);
 };
+
+void Callback_func(WPARAM wParam, NOTIFYPARA *pNotifyPara);
+void Set_Callback(CALLBACK_Func func, WPARAM wParam);
+void Callback_Notify(NOTIFYPARA *pNotifyPara);

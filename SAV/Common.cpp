@@ -109,6 +109,21 @@ vector<CString> GetLineInConfigurationINI()
 
 	return vec;
 }
+
+
+int ReadInteger(CString szSection, CString szKey, int iDefaultValue, CString m_szFileName)
+{
+	int iResult = GetPrivateProfileInt(szSection, szKey, iDefaultValue, m_szFileName);
+	return iResult;
+}
+CString ReadString(CString szSection, CString szKey, CString szDefaultValue, CString m_szFileName)
+{
+	TCHAR* szResult = L"";
+	memset(szResult, 0x00, 255);
+	GetPrivateProfileString(szSection, szKey, szDefaultValue, szResult, 255, m_szFileName);
+	return szResult;
+}
+
 /*
 vector<CString> GetLineInConfigurationINI()
 {
