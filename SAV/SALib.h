@@ -1,13 +1,36 @@
 #pragma once
 #include "Common.h"
+#include "Autil.h"
+#include "SASO.h"
 #include <deque>
 #include <stack>
+
+#pragma region Constant
 
 #define STATIC_NPC_NUM				200	//静态npc人数
 #define CHAR_SKILL_NUM				30	//人物技能数
 #define EMAIL_NUM					80	//邮件名片数
 #define MENUFLAG					64	//448
 #define MAXTALKLENGTH				20
+
+
+#define SUCCESSFUL					1
+#define SENDMSG_ERROR				-2
+#define RECVMSG_ERROR				-3
+#define CHECKSUM_ERROR				-4
+#define SPLITMSG_ERROR				-5
+#define GETFUNC_ERROR				-6
+#define CDKEY_AND_PWD_ERROR			-7
+#define INVALID_INFO				-8
+#define GET_ACCOUNT_INFO_ERROR		-9
+#define NOT_LOGGED_IN				-10
+#define NOACCOUNT					0
+#define DELETE_CHAR_ERROR			-1
+#define CREATE_NEWCHAR_ERROR		-1
+#define LOGIN_ERROR					-1
+
+#pragma endregion
+
 
 #pragma region Struct
 //人物
@@ -211,10 +234,16 @@ public:
 	SALib();
 	~SALib();
 
+	CAutil autil;
+	SOCKET socket;
+
 	void SALib::Run(USERINFO *puser);
 	void Init();
-	BOOL SALib::lineConnect(SOCKET &rsocket, char *serverKey);
+	BOOL SALib::lineConnect(SOCKET &rsocket, char *serverKey, USERINFO *puser);
+	int SendOnlineInfo(char *info);
+	int CharLogin(int dataplace);
 
+	USERINFO user;						//帐号信息
 	CHARLIST charlist[2];						//人物列表
 	MAGIC magic[6];								//人物身上的精灵信息
 	PETDETAIL petdetail[5];						//宠物详细信息
@@ -295,6 +324,11 @@ public:
 	BOOL bCapEscapeWhenNoPet;		//是否逃跑当没有要捕获的宠物时
 	RECRUITBLOOD recruitblood;		//保存人物精灵补血设置(包括战时和平时)
 	PETRECRUITBLOOD petrecruitblood;		//宠物技能补血
+	
+	//系统
+	DWORD nStartTime;					//发送连接信息计时器
+	DWORD nRecvTime;					//接收连接信息计时器
+
 	
 };
 

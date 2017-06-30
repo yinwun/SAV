@@ -1,6 +1,20 @@
 #include "stdafx.h"
 #include "SALib.h"
 
+#pragma region 变量
+
+extern USERINFO *g_userinfo;
+extern int g_userNum;
+extern SERVERINFO g_serverinfo;
+extern SALib *pDp;
+//游戏时间
+extern long gametime;
+//消息回调函数
+extern void Callback_Notify(NOTIFYPARA *pNotifyPara);
+
+CCriticalSection csSingal;	//信号量
+
+#pragma endregion
 
 SALib::SALib()
 {
@@ -160,9 +174,10 @@ void SALib::Run(USERINFO *puser)
 	CString szMsg;
 	NOTIFYPARA para;
 	para.nNotityType = NOTIFY_MSG;
+	
 }
 
-BOOL SALib::lineConnect(SOCKET &rsocket, char *serverKey)
+BOOL SALib::lineConnect(SOCKET &rsocket, char *serverKey, USERINFO *puser)
 {
 	BOOL isConnect = FALSE;
 	HOSTENT *lpHostEnt;
@@ -173,56 +188,111 @@ BOOL SALib::lineConnect(SOCKET &rsocket, char *serverKey)
 	memset(ip, 0, sizeof(ip));
 
 
+	strncpy_s(ip, puser->servername, strlen(puser->servername));
+	strncpy_s(serverName, puser->servername, strlen(puser->servername));
 
-	return isConnect;
+	lpHostEnt = gethostbyname(ip);
+	if (!lpHostEnt)return;
+	lpaddr = lpHostEnt->h_addr_list[0];
+	memmove(&inAddr, lpaddr, 4);
+	sprintf_s(ip, "%d.%d.%d.%d", inAddr.S_un.S_addr & 0xff, (inAddr.S_un.S_addr >> 8) & 0xff, (inAddr.S_un.S_addr >> 16) & 0xff, (inAddr.S_un.S_addr >> 24) & 0xff);
+	strcpy_s(g_serverinfo.ip, ip);
+
+	g_serverinfo.port = puser->port;
+
+	char *serverKey = (char*)malloc(150 * sizeof(char));
+
+	strcpy_s(user.charname, "yinwun15");
+	strcpy_s(user.password, "dI34286834Y");
+	strcpy_s(user.safecode, "123");
+	strcpy_s(user.scriptName, "");
+	SOCKET socket;
+	BOOL isConnect = false;
+	//ConnectServer(socket, g_serverinfo.ip, g_serverinfo.port, &*serverKey);
+
+
+	//连接服务端
+	if (!isConnect) {
+
+		MessageBox(L"A");
+
+
+	}
+	else
+
+	{
+
+		//生成runningKey
+		CString strtmp(serverKey);
+		//AfxMessageBox(strtmp);
+		CString str = strtmp.Right(strtmp.GetLength() - 1);
+		SASO *so = new SASO(str);
+		char *SOKey = so->RunningKey();
+
+
+		return isConnect;
+	}
 }
 
-/*
-HOSTENT *lpHostEnt;
-struct in_addr inAddr;
-LPSTR lpaddr;
-char ip[30];
-char serverName[30];
-memset(ip, 0, sizeof(ip));
-
-strncpy_s(ip, "116.10.184.141", strlen("116.10.184.141"));
-strncpy_s(serverName, "石器电信1", strlen("石器电信1"));
-
-lpHostEnt = gethostbyname(ip);
-if (!lpHostEnt)return;
-lpaddr = lpHostEnt->h_addr_list[0];
-memmove(&inAddr, lpaddr, 4);
-sprintf_s(ip, "%d.%d.%d.%d", inAddr.S_un.S_addr & 0xff, (inAddr.S_un.S_addr >> 8) & 0xff, (inAddr.S_un.S_addr >> 16) & 0xff, (inAddr.S_un.S_addr >> 24) & 0xff);
-strcpy_s(g_serverinfo.ip, ip);
-g_serverinfo.port = 9065;
-
-char *serverKey = (char*)malloc(150 * sizeof(char));
-
-strcpy_s(user.charname, "yinwun15");
-strcpy_s(user.password, "dI34286834Y");
-strcpy_s(user.safecode, "123");
-strcpy_s(user.scriptName, "");
-SOCKET socket;
-BOOL isConnect = false;
-//ConnectServer(socket, g_serverinfo.ip, g_serverinfo.port, &*serverKey);
 
 
-//连接服务端
-if (!isConnect) {
-
-MessageBox(L"A");
-
-
-}
-else
-
+//客户端向服务端每隔30秒发送一次在线信息，以便让服务端知道客户端仍在线上，客户端发送的信息为hoge,战斗时每回合后发送"????"
+int SALib::SendOnlineInfo(char *info)
 {
+	char buffer[1024];
+	int checksum = 0;
 
-//生成runningKey
-CString strtmp(serverKey);
-//AfxMessageBox(strtmp);
-CString str = strtmp.Right(strtmp.GetLength() - 1);
-SASO *so = new SASO(str);
-char *SOKey = so->RunningKey();
+	nStartTime = GetTickCount();
+	checksum = 0;
+	ZeroMemory(buffer, sizeof(buffer));
+	checksum += autil.util_mkstring(buffer, info);
+	autil.util_mkint(buffer, checksum);
+	if (!autil.util_SendMesg(&socket, 87, buffer)){
+		IsOnLine = FALSE;
+		return SENDMSG_ERROR;
+	}
+	return SUCCESSFUL;
 }
-*/
+
+
+int SALib::CharLogin(int dataplace)
+{
+	char buffer[8192];
+	int checksum = 0;
+
+	//新号登入
+	checksum = 0;
+	ZeroMemory(buffer, sizeof(buffer));
+	checksum += autil.util_mkstring(buffer, charlist[dataplace].name);
+	autil.util_mkint(buffer, checksum);
+	if (!autil.util_SendMesg(&socket, 77, buffer)){
+		IsOnLine = FALSE;
+		return SENDMSG_ERROR;
+	}
+	//if(type==1){//安全码登入，等待返回错误信息
+	//	ZeroMemory(buffer,sizeof(buffer));
+	//	recvbytes=recv(socket,buffer,sizeof(buffer),0);
+	//	if(recvbytes<=0)
+	//		return RECVMSG_ERROR;
+	//	autil.util_Init();
+	//	autil.util_DecodeMessage(raw,buffer);
+	//	if(!autil.util_SplitMessage(raw,SEPARATOR))
+	//		return SPLITMSG_ERROR;
+	//	if(!autil.util_GetFunctionFromSlice(&func, &fieldcount))
+	//		return GETFUNC_ERROR;
+	//	checksum=0;
+	//	if(func==88 && fieldcount==3){
+	//		checksum += autil.util_destring(2,result);
+	//		checksum += autil.util_destring(3,message);
+	//		autil.util_deint(4, &checksumrecv);
+	//		if(checksum!=checksumrecv)	
+	//			return CHECKSUM_ERROR;
+	//		if(strcmp(result,"failed")!=0 && strcmp(message,"Password is wrong")!=0)
+	//			return CREATE_NEWCHAR_ERROR;	
+	//	}
+	//	else
+	//		return INVALID_INFO;
+
+	//}
+	return SUCCESSFUL;
+}

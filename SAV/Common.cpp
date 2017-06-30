@@ -110,12 +110,12 @@ vector<CString> GetLineInConfigurationINI()
 	return vec;
 }
 
-
 int ReadInteger(CString szSection, CString szKey, int iDefaultValue, CString m_szFileName)
 {
 	int iResult = GetPrivateProfileInt(szSection, szKey, iDefaultValue, m_szFileName);
 	return iResult;
 }
+
 CString ReadString(CString szSection, CString szKey, CString szDefaultValue, CString m_szFileName)
 {
 	TCHAR* szResult = L"";
@@ -123,6 +123,93 @@ CString ReadString(CString szSection, CString szKey, CString szDefaultValue, CSt
 	GetPrivateProfileString(szSection, szKey, szDefaultValue, szResult, 255, m_szFileName);
 	return szResult;
 }
+
+/********************************************************************************
+* Function Type	:	public
+* Description	:	获取当前时间的字符串,如：2003-10-01 12:00:00
+*********************************************************************************/
+CString GetCurTimeString()
+{
+	time_t tNow = time(NULL);
+	CTime cTime(tNow);
+	return cTime.Format(_T("%Y-%m-%d %H:%M:%S"));
+}
+
+/********************************************************************************
+* Function Type	:	Global
+* Parameter		:	lpszFormat	-	要记录的日志内容
+* Return Value	:	无返回值
+* Description	:	记录日志
+*********************************************************************************/
+CCriticalSection f_CSFor_DbgLog;
+void DbgLog(LPCSTR lpszFormat,...)
+{
+	// 格式化
+	f_CSFor_DbgLog.Lock();
+	char szLogBuf[1024 * 4] = { 0 };
+	char *p = szLogBuf;
+	*p = '[';
+	p++;
+	CString csDate = GetCurTimeString();
+	int nLen = csDate.GetLength();
+	//strcpy_s(p, nLen + 1, (LPCSTR)csDate);
+	memcpy(p, csDate, csDate.GetLength());
+	p += nLen;
+	*p = ']';
+	p++;
+	*p = ' ';
+	p++;
+
+	va_list  va;
+	//va_start(va, lpszFormat);
+	nLen = sizeof(szLogBuf) / 2 - (int)(p - szLogBuf);
+	vsprintf_s(p, nLen, lpszFormat, va);
+	va_end(va);
+	char buf[1024*4]={0};
+	//WideCharToMultiByte(CP_ACP,0,szLogBuf,-1,buf,sizeof(buf),NULL,NULL);
+	WriteDataToFile("log.txt", szLogBuf, strlen(szLogBuf), "ab+", 0);
+	f_CSFor_DbgLog.Unlock();
+}
+
+/********************************************************************************
+* Function Type	:	Global
+* Parameter		:	filename		-	文件名
+*					data			-	要保存的数据
+*					mode			-	文件打开的模式
+*					size			-	数据大小
+*					nStartPos		-	文件开始位置
+* Return Value	:	>=0				-	写入文件的大小
+*					-1				-	写操作失败
+* Description	:	保存数据到文件
+*********************************************************************************/
+int WriteDataToFile(LPCSTR filename, char* data, long size, LPCSTR mode, int nStartPos/*=-1*/)
+{
+	//ASSERT ( filename && strlen(filename) > 0 );
+	FILE *fp;
+	long retval;
+	errno_t err;
+	err = fopen_s(&fp, filename, mode);
+	if (err == 0)
+	{
+		if (nStartPos >= 0)
+		{
+			if (fseek(fp, nStartPos, SEEK_SET) != 0)
+				return -1;
+		}
+		retval = (long)fwrite(data, sizeof(UCHAR), size, fp);
+		fclose(fp);
+		if (retval != size)
+		{
+			return -1;
+		}
+		else 	return retval;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
 
 /*
 vector<CString> GetLineInConfigurationINI()

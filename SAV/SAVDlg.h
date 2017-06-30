@@ -6,6 +6,9 @@
 #include "afxcmn.h"
 #include "DialogAccount.h"
 #include "DialogCharInfo.h"
+#include "Common.h"
+#include "SASO.h"
+
 
 // CSAVDlg 对话框
 class CSAVDlg : public CDialogEx
@@ -15,9 +18,7 @@ public:
 	CSAVDlg(CWnd* pParent = NULL);	// 标准构造函数
 
 // 对话框数据
-#ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_SAV_DIALOG };
-#endif
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
@@ -35,8 +36,27 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CTabCtrl m_tabMain;
-	CDialogAccount m_para_account;
+	CListBox m_message;
+	CListCtrl m_charinfo;
 	CDialogCharInfo m_para_charInfo;
-	CListCtrl m_listAct;
+	CDialogAccount m_para_account;
+
 	afx_msg void OnTcnSelchangeTabmain(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnSinglelogin();
+	afx_msg void OnBnClickedbtnsinglelogin();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+	void BindInfoList();
+	void CallbackMsg(NOTIFYPARA *pNotifyPara);
+	BOOL CharLogin(int index);
+
+	UINT TimerOn;
+	CStatic m_time;
+	BOOL m_autorun;
 };
+
+
+void Callback_func(WPARAM wParam, NOTIFYPARA *pNotifyPara);
+void Set_Callback(CALLBACK_Func func, WPARAM wParam);
+void Callback_Notify(NOTIFYPARA *pNotifyPara);
+void RunThread(LPVOID p);

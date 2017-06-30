@@ -50,7 +50,10 @@ enum{
 	NOTIFY_FAME
 };
 
-
+//用于向线程传递整型参数
+typedef struct{
+	int index;
+}THREADPARA;
 #pragma endregion
 
 typedef void(*CALLBACK_Func) (WPARAM wParam, NOTIFYPARA *msg);
@@ -58,5 +61,13 @@ typedef void(*CALLBACK_Func) (WPARAM wParam, NOTIFYPARA *msg);
 int ConnectServer(SOCKET &rsocket, char *ip, int port, char *serverKey);
 
 vector<CString> GetLineInConfigurationINI();
+
 int ReadInteger(CString szSection, CString szKey, int iDefaultValue, CString m_szFileName);
+
 CString ReadString(CString szSection, CString szKey, CString szDefaultValue, CString m_szFileName);
+
+int WriteDataToFile(LPCSTR filename, char* data, long size, LPCSTR mode, int nStartPos/*=-1*/);
+
+void DbgLog(LPCTSTR lpszFormat,...);
+
+CString GetCurTimeString();
