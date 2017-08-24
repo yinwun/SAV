@@ -1,0 +1,19 @@
+CString ReadString(CString szSection, CString szKey, CString szDefaultValue, CString m_szFileName)
+{
+	CString m_value;
+	GetPrivateProfileString(szSection, szKey, szDefaultValue, m_value.GetBuffer(255), 255, m_szFileName);
+	return m_value;
+}
+CString str;
+	str = ReadString("DEGUGLOG", "LOG", "DefaultName", "C:\\Working\\Code\\DIPI\\config.ini");
+	AfxMessageBox(str);
+
+	if (strcmp(str, "Y") == 0)
+	{
+		AfxMessageBox("A");
+	}
+	else
+	{
+		AfxMessageBox("B");
+
+	}
