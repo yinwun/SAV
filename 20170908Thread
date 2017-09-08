@@ -1,0 +1,92 @@
+#include <process.h>
+#include <windows.h>
+#include <queue>
+#include <stdio.h>
+
+using namespace std;
+
+DWORD WINAPI ThreadWrite(LPVOID lParam);
+DWORD WINAPI ThreadRead(LPVOID lParam);
+
+queue<char *> Buffer;
+
+HANDLE m_hMutexBuffer;
+HANDLE m_hEventBuffer;
+
+void main()
+{
+ m_hMutexBuffer = CreateMutex(NULL, FALSE, NULL);
+ ReleaseMutex(m_hMutexBuffer);
+
+ m_hEventBuffer = CreateEvent(NULL, TRUE, FALSE, NULL);
+ 
+ HANDLE m_hThreadWrite = CreateThread(NULL, 0, ThreadWrite, NULL, 0, 0);
+ HANDLE m_hThreadRead  = CreateThread(NULL, 0, ThreadRead,  NULL, 0, 0);
+ 
+ HANDLE HandleList[2];
+ HandleList[0] = m_hThreadWrite;
+ HandleList[1] = m_hThreadRead;
+ 
+ WaitForMultipleObjects(2, HandleList, TRUE, INFINITE);
+}
+
+DWORD WINAPI ThreadWrite(LPVOID lParam)
+{
+ if (WAIT_OBJECT_0 == WaitForSingleObject(m_hMutexBuffer, 100))
+ {  
+  char *Item = new char[20];
+  strcpy(Item, "Hello World!");
+  Buffer.push(Item);
+  ReleaseMutex(m_hMutexBuffer);
+  printf("0x%08x/n", Item);
+  printf("0x%08x/n", &Item);
+  SetEvent(m_hEventBuffer);  
+  Sleep(10);
+ } 
+ return 0;
+}
+
+DWORD WINAPI ThreadRead(LPVOID lParam)
+{
+ if (WAIT_OBJECT_0 ==WaitForSingleObject(m_hEventBuffer, INFINITE))
+ {
+  if (WAIT_OBJECT_0 == WaitForSingleObject(m_hMutexBuffer, 100))
+  {
+   char * _Item = Buffer.front();
+   Buffer.pop();
+   if (Buffer.empty())
+   {
+    ResetEvent(m_hEventBuffer);
+   }
+   ReleaseMutex(m_hMutexBuffer);
+
+   printf("%s/n", _Item);
+
+   printf("0x%08x/n", _Item);
+   printf("0x%08x/n", &_Item);
+
+   Sleep(10);
+   
+   delete []  _Item;
+
+   _Item = NULL;
+  }
+ } 
+ return 0;
+}
+
+在终端打印如下：
+
+0x00372d68
+
+0x0051ffb0
+
+Hello World!
+
+0x00372d68
+
+0x0061ffb0
+
+可见写线程中的Item与读线程_Item地址不同，在各自的栈空间上分配，相差0x00100000大小的地址空间，而Item与_Item指向相同的内存空间，这个内存空间是在进程的全局堆空间上分配的。
+
+delete 函数只能调用一次，因为Item 和 _Item是在栈上分配的，在线程中由系统自己回收，但二者指向相同的内存空间，因此只能释放一次。利用这个特性，我们可以很方便地在线程间离开内存通信，并可以很好地解决分配与回收的问题。
