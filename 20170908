@@ -1,0 +1,34 @@
+void RegxNumber()
+{
+	// regular expression
+
+	const std::regex pattern("\\d+");
+
+
+
+	// the source text
+
+	std::string weekend = "123 and 456, but some Fridays also.";
+
+
+
+	const std::sregex_token_iterator end;  //需要注意一下这里
+
+	for (std::sregex_token_iterator i(weekend.begin(), weekend.end(), pattern); i != end; ++i)
+
+	{
+
+		cout << *i << std::endl;
+
+	}
+
+
+}
+
+#include "stdafx.h"
+#include "ConSAM.h"
+#include <stdio.h>
+#include <regex>
+#include <string.h>
+#include <iostream>
+
