@@ -1,14 +1,16 @@
-P|P|提升学习经验的能力剩大约 770 小时。|0void RegxNumber()
+void RegxNumber()
 {
 	// regular expression
 
 	const std::regex pattern("\\d+");
-
+	CString cstr;
+	char  buffer[200];
+	string str;
 
 
 	// the source text
 
-	std::string weekend = "123 and 456, but some Fridays also.";
+	std::string weekend = "P | P | 提升学习经验的能力剩大约 770 小时。 | 0";
 
 
 
@@ -19,17 +21,16 @@ P|P|提升学习经验的能力剩大约 770 小时。|0void RegxNumber()
 	{
 
 		cout << *i << std::endl;
+		str.append(*i);
+		break;
 
+
+		//str.copy(*i);
+		//str.Format("%s", *i);
+		//strcpy(str, *i);
 	}
 
-
+	cstr = str.c_str();
+	//cstr.Format(L"%d", str.c_str());
+	printf("%S\n", cstr);
 }
-
-#include "stdafx.h"
-#include "ConSAM.h"
-#include <stdio.h>
-#include <regex>
-#include <string.h>
-#include <iostream>
-
-P|P|提升学习经验的能力剩大约 770 小时。|0
