@@ -1,0 +1,64 @@
+int ridePet = nLockRidePet - 1;
+			int flightPet = nLockFightPet - 1;
+			//if ((chardetail.ridepet == -1 && nLockRidePet >= 1 && nLockRidePet <= 5) && (charotherinfo.fightpet == -1 && nLockFightPet >= 1 && nLockFightPet <= 5))
+			//{
+			//	for (int i = 0; i < 5;i++)
+			//	{
+			//		SendPetState(i, 0);
+			//		Sleep(1);
+			//	}
+			//	SendRidePet(nLockRidePet - 1);
+
+			//	Sleep(2);
+
+			//	//SendFightPet(nLockFightPet - 1);
+			//}
+			//
+
+			if (ridePet > chardetail.ridepet)
+			{
+				for (int i = 0; i < 5;i++)
+				{
+					SendPetState(i, 0);
+					Sleep(1);
+				}   
+				SendRidePet(nLockRidePet - 1);
+			}
+			if (flightPet > charotherinfo.fightpet)
+			{
+				CString str;
+				str = ReadString("DEGUGLOG", "LOG", "DefaultName", "D:\\SA_DIPI\\Configure\\config.ini");
+
+					if (strcmp(str, "Y") == 0)
+					{
+				DbgLog("%s, flightPet:%d, charotherinfo.fightpet:%d\r\n", user.charname, flightPet, charotherinfo.fightpet);
+				SendFightPet(nLockFightPet - 1);
+					}
+			}
+
+			if (chardetail.ridepet == -1 && nLockRidePet >= 1 && nLockRidePet <= 5)
+			{
+				for (int i = 0; i < 5;i++)
+				{
+					SendPetState(i, 0);
+					Sleep(1);
+				}
+				SendRidePet(nLockRidePet - 1);
+			}
+			if (charotherinfo.fightpet == -1 && nLockFightPet >= 1 && nLockFightPet <= 5)
+			{
+				SendFightPet(nLockFightPet - 1);
+			}
+
+			if (ridePet != flightPet)
+			{
+				CString str;
+				str = ReadString("DEGUGLOG", "LOG", "DefaultName", "D:\\SA_DIPI\\Configure\\config.ini");
+
+				if (strcmp(str, "Y") == 0)
+				{
+				DbgLog("%s, flightPet:%d, ridePet:%d\r\n", user.charname, flightPet, ridePet);
+				}
+				SendFightPet(nLockFightPet - 1);
+
+			}
