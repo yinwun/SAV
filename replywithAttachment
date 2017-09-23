@@ -4,7 +4,7 @@
     
     Set itm = GetCurrentItem()
     If Not itm Is Nothing Then
-        Set rpl = itm.Reply
+        Set rpl = itm.Reply ; Set rpl = itm.ReplyAll ; 
         CopyAttachments itm, rpl
         rpl.Display
     End If
