@@ -1,0 +1,44 @@
+ Sub ReplyWithAttachments()
+    Dim rpl As Outlook.MailItem
+    Dim itm As Object
+    
+    Set itm = GetCurrentItem()
+    If Not itm Is Nothing Then
+        Set rpl = itm.Reply
+        CopyAttachments itm, rpl
+        rpl.Display
+    End If
+    
+    Set rpl = Nothing
+    Set itm = Nothing
+End Sub
+
+Function GetCurrentItem() As Object
+    Dim objApp As Outlook.Application
+        
+    Set objApp = Application
+    On Error Resume Next
+    Select Case TypeName(objApp.ActiveWindow)
+        Case "Explorer"
+            Set GetCurrentItem = objApp.ActiveExplorer.Selection.Item(1)
+        Case "Inspector"
+            Set GetCurrentItem = objApp.ActiveInspector.CurrentItem
+    End Select
+    
+    Set objApp = Nothing
+End Function
+
+Sub CopyAttachments(objSourceItem, objTargetItem)
+   Set fso = CreateObject("Scripting.FileSystemObject")
+   Set fldTemp = fso.GetSpecialFolder(2) ' TemporaryFolder
+   strPath = fldTemp.Path & "\"
+   For Each objAtt In objSourceItem.Attachments
+      strFile = strPath & objAtt.FileName
+      objAtt.SaveAsFile strFile
+      objTargetItem.Attachments.Add strFile, , , objAtt.DisplayName
+      fso.DeleteFile strFile
+   Next
+
+   Set fldTemp = Nothing
+   Set fso = Nothing
+End Sub
