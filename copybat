@@ -1,0 +1,12 @@
+@echo off
+setlocal enabledelayedexpansion
+set dst=C:/Working/Test/
+set src1=C:/Working/1.txt
+set src2=C:/Working/2.txt
+
+
+::把a.txt复制到test目录下所有子目录，包括子目录下的下一级目录
+for /f "delims=" %%i in ('dir /s /b /ad "!dst!"')do copy "!src1!" "%%i"
+for /f "delims=" %%i in ('dir /s /b /ad "!dst!"')do copy "!src2!" "%%i"
+
+pause
