@@ -1,0 +1,101 @@
+dim @level
+dim @place
+
+label 开始
+set 自动解锁,1
+set 自动加点,体力:200|耐力:600
+
+run 竞技买毒.xzs
+run 穿新手.xzs
+
+check 人物,LV,=,150,准备转身
+check 人物,转生,=,0,call 打肉记录
+check 人物,转生,>,0,call 直接记录
+
+label 开始练级
+check 人物,lv,=,130,是否转身
+check 人物,LV,=,150,准备转身
+label 集合
+run 集合点_M.xzs
+goto 开始战斗
+end
+
+label 是否转身
+check 人物,转生,=,0,未转生
+check 人物,转生,>,0,转生
+end
+
+label 准备转身
+delay 2000
+say xxxxaaaa4ddddcccc
+delay 100
+ifmap 817,全部满级
+check 在队伍中,是,准备转身
+goto 集合
+
+label 全部满级
+delay 2000
+say xxxxaaaa4ddddcccc
+delay 100
+check 在队伍中,是,全部满级
+ifpet ?,=,守护兽,去转身
+run 转身卖宠.xzs
+run 抓宠.xzs
+
+label 去转身
+run 转身.xzs
+goto 开始
+end
+
+label 未转生
+ifpet 布洛多斯,>=,1,集合
+join 0
+run 未转卖宠.xzs
+run 竞技买毒.xzs
+run 抓宠.xzs
+run 买豆.xzs
+run 集合点_M.xzs
+goto 开始战斗
+end
+
+label 转生
+check 人物,LV,<,150,海底Lv150
+goto 开始战斗
+end
+
+label 打肉记录
+run 记录渔村.xzs
+return 
+
+label 直接记录
+run 走路记录.xzs
+return
+
+label 开始战斗
+delay 100
+check 人物,转生,>,0,call 二类锁定 
+check 人物,转生,=,0,call 检测锁定
+check 在队伍中,否,开始练级
+ifmap 2000,开始战斗
+
+label 检测等级
+delay 2000
+check 人物,LV,=,150,准备转身
+check 在队伍中,否,开始练级
+goto 检测等级
+end
+
+label 一类锁定
+set 锁定骑宠,1
+set 锁定战宠,4
+return 
+
+label 二类锁定
+set 锁定骑宠,1
+set 锁定战宠,1
+return 
+
+label 检测锁定
+check 人物,lv,>=,130,call 二类锁定
+check 人物,lv,<,130,call 一类锁定
+return
