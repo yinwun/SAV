@@ -29,13 +29,13 @@ label 准备转身
 delay 2000
 say xxxxaaaa4ddddcccc
 delay 100
-ifmap 817,全部满级
+ifmap 2000,全部满级
 check 在队伍中,是,准备转身
 goto 集合
 
 label 全部满级
 delay 2000
-say xxxxaaaa4ddddcccc
+ifsay xxxxaaaa4ddddcccc
 delay 100
 check 在队伍中,是,全部满级
 ifpet ?,=,守护兽,去转身
