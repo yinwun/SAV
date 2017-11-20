@@ -1,0 +1,9 @@
+CWinThread* pThread[10]; 
+for(int i = 0 ; i < 10 ; i++)
+{
+pThread[i] = AfxBeginThread(FuncThread,this,THREAD_PRIORITY_IDLE); 
+pThread->ResumeThread(); 
+}
+UINT FuncThread(LPVOID pParam) 
+{ 
+} 
