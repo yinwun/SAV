@@ -7,3 +7,15 @@ pThread->ResumeThread();
 UINT FuncThread(LPVOID pParam) 
 { 
 } 
+
+HANDLE hThreads;
+AfxMessageBox(L"A");
+	pThread = new CWinThread[10];
+	HANDLE hThreads[10];
+	unsigned int threadid;
+
+	for (int i = 0; i < 10; i++)
+	{
+		//pThread[i] = AfxBeginThread(DoTest, this, THREAD_PRIORITY_IDLE);
+		hThreads[i] = (HANDLE)_beginthreadex(NULL, 0, &DoTest, &i, 0, &threadid);
+	}
