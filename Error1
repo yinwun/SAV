@@ -1,0 +1,74 @@
+BOOL isAlreadyExit;
+
+Lab_ScriptExit:
+	para.nNotityType=NOTIFY_STOPSCRIPT;
+	szMsg.Format("%s|%d",user.charname,ErrorLine);	
+	para.lpNotifyData=(LPVOID)(LPCTSTR)szMsg;
+	csSingal.Lock();		
+	Callback_Notify(&para);
+	csSingal.Unlock();
+	if(script->IsEmpty())
+		delete []script;
+	DbgLog("user name : %s, line: %d\r\n", user.charname, ErrorLine);
+	script=NULL;
+	intvar.RemoveAll();
+	//if(bScriptErrorReStart && ErrorLine!=0){
+	if (bScriptErrorReStart) {
+		DbgLog("user name : %s, line: %d， lab_ScriptRUn r\n", user.charname, ErrorLine);
+		Sleep(1000);
+		bScriptExit = false;
+		goto ScriptStart;
+	}
+	isAlreadyExit = TRUE;
+	return;
+}
+
+void CDIPIDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	CDIPIApp *pApp=(CDIPIApp *)AfxGetApp();
+	UpdateData(TRUE);
+	gametime++;
+	CTime time1(gametime);
+	CString szVal,szStr;
+	szVal=time1.Format(_T("%d日 %H:%M:%S"));
+	m_time.SetWindowText(szVal);
+	int i;
+	for(i=0;i<g_userNum;i++){
+		//当前线程未退出并且在线,则发送连接信息
+		if(!pDp[i].bExit && pDp[i].IsOnLine){
+			if((GetTickCount()-pDp[i].nStartTime)/1000>=30){
+				if(pDp[i].SendOnlineInfo("hoge")!=SUCCESSFUL){
+					CTime cTime = CTime::GetCurrentTime();
+					szVal.Format("%s %s%s",cTime.Format(_T("%H:%M:%S")),pDp[i].user.charname,"与服务端连接已断！");
+					m_message.AddString(szVal);				
+					m_charinfo.SetItemText(i, 23, "掉线");
+				}				
+			}
+		}
+		//如果当前帐号不在线
+		if(!pDp[i].IsOnLine){
+			//if(pDp[i].bReLogin && !pDp[i].IsOnLine && !pDp[i].IsLogin){
+			if(pDp[i].bReLogin && !pDp[i].IsOnLine && !pDp[i].IsLogin && isAlreadyExit)
+			{
+				pDp[i].IsLogin=TRUE;
+				m_charinfo.SetItemText(i, 23, "重登中");
+				DbgLog("%d 重登中\r\n", i);
+				CharLogin(i);
+				//hThreadsChar[i] = new HANDLE[g_userNum];
+				//hThreadsScr[i] = new HANDLE[g_userNum];
+				//pDp[i].Run(&g_userinfo[i]);
+			}						
+		}//END:如果当前帐号不在线
+		//自动吃鱼鳃草
+		if(pDp[i].bAutoEatSYC && pDp[i].charotherinfo.state==0 && (GetTickCount()-pDp[i].nEatSYCTime)>=3600000){			
+			pDp[i].SendEatSYC();
+			//pDp[i].nEatSYCTime=GetTickCount();
+		}
+		//自动吃智慧果
+		if(pDp[i].bAutoExpNut && pDp[i].charotherinfo.state==0 && (GetTickCount()-pDp[i].nExpNutTime)>=3600000){
+			pDp[i].SendEatExpNut();
+			//pDp[i].nExpNutTime=GetTickCount();
+		}		
+	}
+	CDialogEx::OnTimer(nIDEvent);
+}
