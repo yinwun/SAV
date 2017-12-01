@@ -8,3 +8,11 @@ iptables -t nat -I PREROUTING -p gre -j DNAT
 意思是将所有的GRE包转发到pptp client IP 。注意：这个规则在重启防火墙后要过一段时间（2-3分钟）才起作用！
 
 按照openwrt wiki上说的，安装kmod-ipt-nat-extra，可以解决内网多pptp客户端连接问题，未测试！
+
+config 'interface' 'vpn'
+ option 'ifname' 'pptp-vpn'
+ option 'proto' 'pptp'
+ option 'username' 'vpnusername'
+ option 'password' 'vpnpassword'
+ option 'server' 'vpn.example.org or ipaddress'
+ option 'buffering' '1'
