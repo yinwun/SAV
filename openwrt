@@ -1,0 +1,10 @@
+方法：
+1、确保安装以下几个ipk包: kmod-gre kmod-ipt-conntrack-extra kmod-ipt-nat-extra iptables-mod-conntrack-extra
+
+2、防火墙添加以下规则（防火墙默认开放所有端口）：
+vi /etc/firewall.user:
+iptables -t nat -I PREROUTING -p gre -j DNAT
+
+意思是将所有的GRE包转发到pptp client IP 。注意：这个规则在重启防火墙后要过一段时间（2-3分钟）才起作用！
+
+按照openwrt wiki上说的，安装kmod-ipt-nat-extra，可以解决内网多pptp客户端连接问题，未测试！
