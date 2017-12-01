@@ -24,3 +24,12 @@ http://www.linuxhub.org/?p=1273
 https://zhuanlan.zhihu.com/iobject/19707905
 
 https://wiki.openwrt.org/doc/uci/network/switch
+
+root@OpenWrt:/etc/config# swconfig dev switch0 show | grep link
+        link: port:0 link:up speed:1000baseT full-duplex txflow rxflow
+        link: port:1 link:up speed:1000baseT full-duplex auto
+        link: port:2 link:down
+        link: port:3 link:up speed:1000baseT full-duplex auto
+        link: port:4 link:up speed:100baseT full-duplex auto
+        link: port:5 link:down
+        link: port:6 link:down
