@@ -1,0 +1,68 @@
+原本是想把db120的eth1绑定的三个端口划分为3个vlan，每个vlan也单独配置一个SSID。结果比较悲剧的是b43的驱动不支持多个SSID。简单讲一下如何划分多个vlan。对于DB120来说，靠近电源的网口其实是eth0,原版的固件是把这个网卡和eth1桥接了，使得有4个lan口。刷了openwrt后LAN4就变成了WAN口（eth0），LAN1-3是eth1。可以单独配置一下把LAN3划到一个单独的VLAN
+
+config interface 'loopback'
+    option ifname 'lo'
+    option proto 'static'
+    option ipaddr '127.0.0.1'
+    option netmask '255.0.0.0'
+
+config interface 'lan'
+    option ifname 'eth1.0'
+    option type 'bridge'
+    option proto 'static'
+    option netmask '255.255.255.0'
+    option ipaddr '10.10.10.1'
+
+config interface 'lan2'
+    option ifname 'eth1.1'
+    option type 'bridge'
+    option proto 'static'
+    option netmask '255.255.255.0'
+    option ipaddr '10.10.20.1'
+
+config interface wan
+    option ifname eth0
+    option proto dhcp
+config interface 'wwan'
+    option _orig_ifname 'wlan0'
+    option _orig_bridge 'false'
+    option proto 'static'
+    option ipaddr '192.168.3.2'
+    option netmask '255.255.255.0'
+    option gateway '192.168.3.1'
+    option dns '192.168.3.1'
+config 'switch' 'eth1'
+    option 'reset' '1'
+    option 'enable_vlan' '1'
+config 'switch_vlan'
+    option 'device' 'eth1'
+    option 'vlan' '0'
+    option 'ports' '0 1 5*'
+config 'switch_vlan'            
+    option 'device' 'eth1'          
+    option 'vlan' '1'     
+    option 'ports' '2 5*'
+port 5是CPU，port 0-2分别对应的LAN1-3，以上就是把LAN3划到单独的VLAN，IP段是10.10.20.1/24，而LAN1-2的IP段是10.10.10.1/24。另外需要配置一下dhcp加一段
+
+config dhcp 'lan'
+        option interface 'lan2'
+        option limit '100'
+        option leasetime '12h'
+        option start '10'
+重启一下这样当我们网线插入到LAN3口的时候就能顺利获取到一个10.10.20.1/24段的IP了。另外防火墙的配置也需要单独加一点
+
+#add for lan 2
+config forwarding
+    option src lan2
+    option dest wan
+
+config zone                           
+        option name 'lan2'            
+        option network 'lan2'         
+        option input 'ACCEPT'         
+        option output 'ACCEPT'        
+        option forward 'REJECT'
+DB120本来是个很好的折腾的路由器，BCM的CFE很方便刷机，只要不自己刷带了CFE的固件把CFE搞坏都是可以随便刷机的，劈开BCM6358的性能和发热量来说，b43驱动确实弱了点，不支持AP+STA，不支持多SSID，etc…
+
+参考：
+1. http://wiki.openwrt.org/doc/uci/network/switch
