@@ -10,3 +10,66 @@ void CTxtView::OnDraw(CDC* pDC)
  }
 
 } 
+
+重载 DrawItem 函数或Onpaint函数
+void CListCtrlCl::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
+{
+    // 重绘网格线 [7/12/2013 dell]
+    const MSG *msg = GetCurrentMessage();
+    DefWindowProc( msg->message, msg->wParam, msg->lParam );
+
+    // Draw the lines only for LVS_REPORT mode
+    if( (GetStyle() & LVS_TYPEMASK) == LVS_REPORT )
+    {
+        // Get the number of columns
+        CClientDC dc(this );
+        CHeaderCtrl* pHeader = (CHeaderCtrl*)GetDlgItem(0);
+        int nColumnCount = pHeader->GetItemCount();
+
+        // The bottom of the header corresponds to the top of the line 
+        RECT rect, rectCol;
+        pHeader->GetClientRect( &rect );
+        int top = rect.bottom;
+
+        // Now get the client rect so we know the line length and
+        // when to stop
+        GetClientRect( &rect );
+
+        if( !GetItemRect( 1, &rectCol, LVIR_BOUNDS ))
+            return;
+
+        int height1 = rectCol.bottom - rectCol.top;
+
+        // The border of the column is offset by the horz scroll
+        int borderx = 0 - GetScrollPos( SB_HORZ );
+        for( int i = 0; i < nColumnCount; i++ )
+        {
+            // Get the next border
+            borderx += GetColumnWidth( i );
+
+            // if next border is outside client area, break out
+            if( borderx >= rect.right ) break;
+
+            // Draw the line.
+            dc.MoveTo( borderx-1, top/*top*/);
+            dc.LineTo( borderx-1, (2+lpDrawItemStruct->itemID)*height1/*rect.bottom*/ );
+        }
+
+        // Draw the horizontal grid lines
+
+        // First get the height
+        if( !GetItemRect( 0, &rect, LVIR_BOUNDS ))
+            return;
+
+        int height = rect.bottom - rect.top;
+
+        GetClientRect( &rect );
+        int width = rect.right;
+
+        for(int i = 1; i <= lpDrawItemStruct->itemID+1; i++ )
+        {
+            dc.MoveTo( 0, top + height*i);
+            dc.LineTo( width, top + height*i );
+        }
+    }
+}
