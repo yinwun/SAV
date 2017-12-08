@@ -1,0 +1,12 @@
+这段代码用来话围棋的网格是最好不过了
+
+void CTxtView::OnDraw(CDC* pDC)
+{
+ for (int i=0;i<=300;i+=10) //10是网格的宽度,  pDC->MoveTo(0,i);
+{
+  pDC->LineTo(300,i);
+  pDC->MoveTo(i,0);
+  pDC->LineTo(i,300);
+ }
+
+} 
