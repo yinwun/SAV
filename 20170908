@@ -36,16 +36,18 @@ void RegxNumber()
 }
 
 
-The solution I've done is to add it to file.vmx
-Svga.vramSize = "268435456"
-Monitor_control.restrict_backdoor = "true"
-Isolation.tools.getPtrLocation.disable = "true"
-Isolation.tools.setPtrLocation.disable = "true"
-Isolation.tools.setVersion.disable = "true"
-Isolation.tools.getVersion.disable = "true"
-Monitor_control.disable_directexec = "true"
-SMBIOS.reflectHost = "true"
- 
-But have not succeeded, it seems the application I run can tell that it is a virtual machine.
-someboddy help me please?
-thanks before
+isolation.tools.getPtrLocation.disable = “TRUE”
+isolation.tools.setPtrLocation.disable = “TRUE”
+isolation.tools.setVersion.disable = “TRUE”
+isolation.tools.getVersion.disable = “TRUE”
+monitor_control.disable_directexec = “TRUE”
+monitor_control.disable_chksimd = “TRUE”
+monitor_control.disable_ntreloc = “TRUE”
+monitor_control.disable_selfmod = “TRUE”
+monitor_control.disable_reloc = “TRUE”
+monitor_control.disable_btinout = “TRUE”
+monitor_control.disable_btmemspace = “TRUE”
+monitor_control.disable_btpriv = “TRUE”
+monitor_control.disable_btseg = “TRUE”
+tools.upgrade.policy = “manual”
+monitor_control.restrict_backdoor = “TRUE”
