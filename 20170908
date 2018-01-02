@@ -34,3 +34,18 @@ void RegxNumber()
 	//cstr.Format(L"%d", str.c_str());
 	printf("%S\n", cstr);
 }
+
+
+The solution I've done is to add it to file.vmx
+Svga.vramSize = "268435456"
+Monitor_control.restrict_backdoor = "true"
+Isolation.tools.getPtrLocation.disable = "true"
+Isolation.tools.setPtrLocation.disable = "true"
+Isolation.tools.setVersion.disable = "true"
+Isolation.tools.getVersion.disable = "true"
+Monitor_control.disable_directexec = "true"
+SMBIOS.reflectHost = "true"
+ 
+But have not succeeded, it seems the application I run can tell that it is a virtual machine.
+someboddy help me please?
+thanks before
