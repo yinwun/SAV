@@ -1,0 +1,94 @@
+void CNetPOCDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+
+	CHttpClient   conn;
+	CString   value = L"http://www.ip138.com/";
+	//CString   value = L"http://www.goolge.com";
+	value = conn.doGet(value);
+	AfxMessageBox(L"A");
+}
+
+
+#include "stdafx.h"
+#include "CHttpClient.h"
+#define _UNICODE 
+
+CHttpClient::CHttpClient()
+{
+}
+CHttpClient::~CHttpClient()
+{
+}
+
+/*************************类实现********************************/
+// 添加字段  
+void CHttpClient::addParam(CString   name, CString   value)
+{
+	names.AddTail((LPCTSTR)name);
+	values.AddTail((LPCTSTR)value);
+	CString   eq = L"=";
+	CString   an = L"&";
+	CONTENT = CONTENT + name + eq + value + an;
+	CL = CONTENT.GetLength();
+}
+// 以http Get方式请求URL  
+CString CHttpClient::doGet(CString   href)
+{
+	CString   httpsource = L"";
+	CInternetSession   session1(NULL, 0);
+	CHttpFile*   pHTTPFile = NULL;
+	try {
+		pHTTPFile = (CHttpFile*)session1.OpenURL(href);
+		//session1.    
+	}
+	catch (...)
+	{
+		pHTTPFile = NULL;
+	}
+	if (pHTTPFile)
+	{
+		CString   text;
+		for (int i = 0; pHTTPFile->ReadString(text); i++)
+		{
+			//httpsource.Append(text); +"\r\n";
+
+			char * pStr = (char*)text.GetBuffer(text.GetLength());//获取原始字符串
+			int szBuf = MultiByteToWideChar(CP_UTF8, 0, pStr, -1, NULL, 0);//获取需要多少缓存
+			wchar_t * pBuf = new wchar_t[szBuf * sizeof(wchar_t)];//申请缓存空间
+			MultiByteToWideChar(CP_UTF8, 0, pStr, -1, pBuf, szBuf * sizeof(wchar_t));//转码
+			httpsource.Append(pBuf);
+			delete[] pBuf;
+		}
+		pHTTPFile->Close();
+		delete   pHTTPFile;
+	}
+	else
+	{
+
+	}
+	return   httpsource;
+}
+
+
+#pragma once
+/************************Http: Get、Post的封装类***************/
+
+#include   "wininet.h"    
+#include   "afxinet.h"  
+
+/*********************类定义***********************************/
+class   CHttpClient
+{
+public:
+	void   addParam(CString   name, CString   value);
+	//CString   doPost(CString   href);
+	CString   doGet(CString   href);
+	CHttpClient();
+	virtual   ~CHttpClient();
+private:
+	CString   CONTENT;
+	int   CL;
+	CStringList   values;
+	CStringList   names;
+};
