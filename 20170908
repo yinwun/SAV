@@ -51,3 +51,5 @@ monitor_control.disable_btpriv = “TRUE”
 monitor_control.disable_btseg = “TRUE”
 tools.upgrade.policy = “manual”
 monitor_control.restrict_backdoor = “TRUE”
+
+http://2017.ip138.com/ic.asp
