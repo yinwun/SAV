@@ -53,3 +53,4 @@ tools.upgrade.policy = “manual”
 monitor_control.restrict_backdoor = “TRUE”
 
 http://2017.ip138.com/ic.asp
+MultiByteToWideChar(CP_ACP, 0, pStr, -1, pBuf, szBuf * sizeof(wchar_t));//转码
